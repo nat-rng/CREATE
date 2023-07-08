@@ -31,6 +31,9 @@ pt = PowerTransformer()
 X_train_full_scaled = pt.fit_transform(X_train_full)
 X_test_full_scaled = pt.transform(X_test_full)
 
+if not os.path.exists('models'):
+    os.makedirs('models')
+
 adasyn = ADASYN(random_state=42)
 X_train_full_adasyn, y_train_full_adasyn = adasyn.fit_resample(X_train_full_scaled, y_train_full)
 # Sequential Feature Selection with Logistic Regression
