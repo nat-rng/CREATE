@@ -15,7 +15,7 @@ fill_values = {'median_recency_out':0, 'median_recency_in':0, 'num_outliers_eth_
                'weekly_to_gini_index': 1000, 'daily_total_gini_index': 1000, 'weekly_total_gini_index': 1000}
 training_data_full= training_scam_data.fillna(fill_values)
 
-xgb = XGBClassifier(n_jobs=-1)
+xgb = XGBClassifier(n_jobs=-1, tree_method='gpu_hist')
 
 X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 
@@ -41,7 +41,7 @@ params = {
 }
 
 grid_xgb = GridSearchCV(xgb, param_grid=params, cv=ten_fold, scoring='f1',
-                        return_train_score=True)
+                        return_train_score=True, n_jobs=-1)
 grid_xgb.fit(X_train_sfs_xgb, y_train_full)
 
 print("Best Parameters {}".format(grid_xgb.best_params_))
