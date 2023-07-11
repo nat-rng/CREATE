@@ -7,13 +7,7 @@ from sklearn.feature_selection import SequentialFeatureSelector
 
 import pickle
 
-training_scam_data = pd.read_parquet('data/parquet_files/training_scam_data.parquet')
-training_scam_data.drop(columns=['address_id', 'year_month'], inplace=True)
-
-fill_values = {'median_recency_out':0, 'median_recency_in':0, 'num_outliers_eth_out':0, 'num_outliers_eth_in': 0,
-               'daily_from_gini_index': 1000, 'daily_to_gini_index': 1000, 'weekly_from_gini_index': 1000, 
-               'weekly_to_gini_index': 1000, 'daily_total_gini_index': 1000, 'weekly_total_gini_index': 1000}
-training_data_full= training_scam_data.fillna(fill_values)
+training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parquet')
 
 xgb = XGBClassifier(n_jobs=-1)
 
@@ -23,7 +17,7 @@ if not os.path.exists('models'):
     os.makedirs('models')
 
 # Sequential Feature Selection with XGBoost
-for num_features in range(11, 16):
+for num_features in range(10, 16):
     sfs_xgb = SequentialFeatureSelector(xgb, n_features_to_select=num_features)
     sfs_xgb.fit(X_train_full, y_train_full)
     sfs_feat_xgb = X_train_full.columns[sfs_xgb.get_support()]
