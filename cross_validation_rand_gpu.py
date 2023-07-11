@@ -14,7 +14,7 @@ fill_values = {'median_recency_out':0, 'median_recency_in':0, 'num_outliers_eth_
                'weekly_to_gini_index': 1000, 'daily_total_gini_index': 1000, 'weekly_total_gini_index': 1000}
 training_data_full= training_scam_data.fillna(fill_values)
 
-xgb = XGBClassifier(n_jobs=-1, tree_method='gpu_hist')
+xgb = XGBClassifier(tree_method='gpu_hist')
 
 X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 
@@ -40,7 +40,7 @@ params = {
 
 # Use RandomizedSearchCV instead of GridSearchCV
 randomized_xgb = RandomizedSearchCV(xgb, param_distributions=params, cv=ten_fold, scoring='f1', 
-                                    return_train_score=True, n_jobs=-1, n_iter=50, random_state=42)
+                                    return_train_score=True, n_jobs=-1, n_iter=1000, random_state=42)
 randomized_xgb.fit(X_train_sfs_xgb, y_train_full)
 
 print("Best Parameters {}".format(randomized_xgb.best_params_))

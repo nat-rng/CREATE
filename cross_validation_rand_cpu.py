@@ -40,7 +40,7 @@ params = {
 
 # Use RandomizedSearchCV instead of GridSearchCV
 randomized_xgb = RandomizedSearchCV(xgb, param_distributions=params, cv=ten_fold, scoring='f1', 
-                                    return_train_score=True, n_jobs=-1, n_iter=50, random_state=42)
+                                    return_train_score=True, n_jobs=-1, n_iter=1000, random_state=42)
 randomized_xgb.fit(X_train_sfs_xgb, y_train_full)
 
 print("Best Parameters {}".format(randomized_xgb.best_params_))
