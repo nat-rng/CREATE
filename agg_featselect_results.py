@@ -37,14 +37,18 @@ for i in range(10, 16):
         selected_features = list(sfs_feat_xgb)
 
         # Apply SMOTE if model is lr
+        X_train_sub, y_train_sub = sfs_model.transform(X_train), y_train
         if model_name == "lr":
             smote = SMOTE(random_state=42)
             X_train_sub, y_train_sub = smote.fit_resample(sfs_model.transform(X_train_scaled), y_train)
+            estimator = LogisticRegression(max_iter=1000)
+        elif model_name == "rf":
+            estimator = RandomForestClassifier(n_jobs=-1)
         else:
-            X_train_sub, y_train_sub = sfs_model.transform(X_train), y_train
+            estimator = XGBClassifier(n_jobs=-1)
 
         # Fit and cross-validate model
-        scores = cross_validate(sfs_model.estimator_, X_train_sub, y_train_sub, cv=rskf, scoring=scoring)
+        scores = cross_validate(estimator, X_train_sub, y_train_sub, cv=rskf, scoring=scoring)
 
         # Store results
         result = {"model": f"{model_name}_{i}", 
