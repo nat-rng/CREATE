@@ -2,7 +2,7 @@ import pandas as pd
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 from xgboost import XGBClassifier
-from sklearn.model_selection import KFold, GridSearchCV
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.model_selection import train_test_split
 
 import pickle
@@ -22,20 +22,20 @@ X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training
 if not os.path.exists('models'):
     os.makedirs('models')
 
-ten_fold = KFold(n_splits=10, random_state=42, shuffle=True)
+ten_fold = StratifiedKFold(n_splits=10, random_state=42, shuffle=True)
 
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
 
 params = {
-    'eta': [0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5], # learning rate
+    'eta': [0.2, 0.3, 0.4], # learning rate
     'min_child_weight': [1, 5, 10], # minimum sum of instance weight (hessian) needed in a child
-    'max_depth': [3, 4, 5, 6, 7, 8], # maximum depth of a tree
-    'gamma': [0.0, 0.1, 0.2, 0.3, 0.4], # minimum loss reduction required to make a split
-    'subsample': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0], # fraction of observations to be randomly samples for each tree.
-    'colsample_bytree': [0.6, 0.7, 0.8, 0.9, 1.0], # fraction of columns to be randomly samples for each tree.
-    'scale_pos_weight': [1, 2, 3, 4], # Control the balance of positive and negative weights
-    'reg_alpha': [0, 0.5, 1], # L1 regularization term on weight (analogous to Lasso regression)
-    'reg_lambda': [1, 1.5, 2], # L2 regularization term on weights (analogous to Ridge regression)
+    'max_depth': [5, 6, 7], # maximum depth of a tree
+    'gamma': [0.1, 0.2, 0.3], # minimum loss reduction required to make a split
+    'subsample': [0.6, 0.7, 0.8], # fraction of observations to be randomly samples for each tree.
+    'colsample_bytree': [0.7, 0.8, 0.9], # fraction of columns to be randomly samples for each tree.
+    'scale_pos_weight': [1, 2, 3], # Control the balance of positive and negative weights
+    'reg_alpha': [0.5, 1], # L1 regularization term on weight (analogous to Lasso regression)
+    'reg_lambda': [1, 1.5], # L2 regularization term on weights (analogous to Ridge regression)
     'random_state': [42] # seed used to generate reproducible results
 }
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 from xgboost import XGBClassifier
-from sklearn.model_selection import KFold, RandomizedSearchCV, train_test_split
+from sklearn.model_selection import RepeatedStratifiedKFold, RandomizedSearchCV, train_test_split
 import pickle
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
@@ -21,7 +21,7 @@ X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training
 if not os.path.exists('models'):
     os.makedirs('models')
 
-ten_fold = KFold(n_splits=10, random_state=42, shuffle=True)
+ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=10)
 
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
 
@@ -40,7 +40,7 @@ params = {
 
 # Use RandomizedSearchCV instead of GridSearchCV
 randomized_xgb = RandomizedSearchCV(xgb, param_distributions=params, cv=ten_fold, scoring='f1', 
-                                    return_train_score=True, n_jobs=-1, n_iter=1000, random_state=42)
+                                    return_train_score=True, n_jobs=-1, n_iter=10000, random_state=42)
 randomized_xgb.fit(X_train_sfs_xgb, y_train_full)
 
 print("Best Parameters {}".format(randomized_xgb.best_params_))
