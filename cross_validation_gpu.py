@@ -46,5 +46,5 @@ grid_xgb.fit(X_train_sfs_xgb, y_train_full)
 print("Best Parameters {}".format(grid_xgb.best_params_))
 print("Best Score {}".format(grid_xgb.best_score_))
 
-with open('models/grid_xgb.pkl', 'wb') as f:
+with open('models/grid_xgb_gpu.pkl', 'wb') as f:
     pickle.dump(grid_xgb, f)
