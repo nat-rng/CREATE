@@ -25,14 +25,14 @@ rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=42)
 results = []
 
 # Loop over the model files
-for i in range(11, 16):
+for i in range(10, 16):
     for model_name in ["lr", "rf", "xgb"]:
         # Load model
         model_file = f"models/sfs_{model_name}_{i}.pkl"
         sfs_model = pd.read_pickle(model_file)
 
         # Get selected features
-        sfs_feat_xgb= X_train_full.columns[(sfs_xgb.get_support())]
+        sfs_feat_xgb= X_train.columns[(sfs_model.get_support())]
         num_features = len(sfs_feat_xgb)
         selected_features = list(sfs_feat_xgb)
 
