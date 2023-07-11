@@ -24,7 +24,6 @@ if not os.path.exists('models'):
 
 ten_fold = KFold(n_splits=10, random_state=42, shuffle=True)
 
-xgb = XGBClassifier()
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
 
 params = {
