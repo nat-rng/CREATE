@@ -15,11 +15,12 @@ X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training
 if not os.path.exists('models'):
     os.makedirs('models')
 
-ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=10)
+ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=5)
 
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
 
 params = {
+    'n_estimators': [10, 50, 100, 200, 300], # number of trees
     'eta': [0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5], # learning rate
     'min_child_weight': [1, 5, 10], # minimum sum of instance weight (hessian) needed in a child
     'max_depth': [3, 4, 5, 6, 7, 8], # maximum depth of a tree
@@ -34,7 +35,7 @@ params = {
 
 # Use RandomizedSearchCV instead of GridSearchCV
 randomized_xgb = RandomizedSearchCV(xgb, param_distributions=params, cv=ten_fold, scoring='f1', 
-                                    return_train_score=True, n_jobs=-1, n_iter=100000, random_state=42)
+                                    return_train_score=True, n_jobs=-1, n_iter=80000, random_state=42)
 randomized_xgb.fit(X_train_sfs_xgb, y_train_full)
 
 print("Best Parameters {}".format(randomized_xgb.best_params_))

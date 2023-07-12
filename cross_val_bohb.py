@@ -56,7 +56,7 @@ w.run(background=True)
 
 bohb = BOHB(configspace=w.get_configspace(),
             run_id='xgb_run', nameserver='localhost',
-            min_budget=10, max_budget=100)
+            min_budget=10, max_budget=300)
 
 res = bohb.run(n_iterations=50)
 
@@ -67,3 +67,4 @@ id2config = res.get_id2config_mapping()
 incumbent = res.get_incumbent_id()
 
 print('Best found configuration:', id2config[incumbent]['config'])
+#output as dictionary
