@@ -66,7 +66,7 @@ bohb = BOHB(configspace=w.get_configspace(),
             run_id='xgb_run', nameserver='localhost',
             min_budget=50, max_budget=400)
 
-res = bohb.run(n_iterations=2)
+res = bohb.run(n_iterations=50)
 
 bohb.shutdown(shutdown_workers=True)
 NS.shutdown()
