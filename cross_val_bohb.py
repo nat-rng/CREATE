@@ -38,7 +38,6 @@ class XGBoostWorker(Worker):
     @staticmethod
     def get_configspace():
         config_space = CS.ConfigurationSpace()
-
         config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('eta', lower=0.01, upper=0.5))
         config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('min_child_weight', lower=1, upper=10))
         config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('max_depth', lower=3, upper=8))
@@ -58,7 +57,7 @@ num_cores = multiprocessing.cpu_count()
 # start multiple instances of the worker
 workers = []
 for i in range(num_cores):  # adjust the number according to your available cores
-    w = XGBoostWorker(nameserver='localhost', run_id='xgb_run')
+    w = XGBoostWorker(nameserver='localhost', run_id='xgb_run', id=i)
     w.run(background=True)
     workers.append(w)
 
@@ -66,7 +65,7 @@ bohb = BOHB(configspace=w.get_configspace(),
             run_id='xgb_run', nameserver='localhost',
             min_budget=50, max_budget=400)
 
-res = bohb.run(n_iterations=50)
+res = bohb.run(n_iterations=16, min_n_workers=num_cores)
 
 bohb.shutdown(shutdown_workers=True)
 NS.shutdown()
