@@ -7,6 +7,8 @@ import logging
 from sklearn.model_selection import cross_val_score, train_test_split, RepeatedStratifiedKFold
 from xgboost import XGBClassifier
 
+import os
+import pickle
 import pandas as pd
 
 training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parquet')
@@ -67,4 +69,9 @@ id2config = res.get_id2config_mapping()
 incumbent = res.get_incumbent_id()
 
 print('Best found configuration:', id2config[incumbent]['config'])
-#output as dictionary
+
+if not os.path.exists('models'):
+    os.makedirs('models')
+
+with (open("models/bohb_xgb.pkl", "wb")) as f:
+    pickle.dump(res, f)
