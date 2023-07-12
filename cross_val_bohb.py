@@ -57,7 +57,7 @@ num_cores = multiprocessing.cpu_count()
 # start multiple instances of the worker
 workers = []
 for i in range(num_cores):  # adjust the number according to your available cores
-    w = XGBoostWorker(nameserver='localhost', run_id='xgb_run', id=i)
+    w = XGBoostWorker(nameserver='localhost', run_id='xgb_run', id='xgbworker_{}'.format(i))
     w.run(background=True)
     workers.append(w)
 
