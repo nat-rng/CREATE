@@ -4,7 +4,7 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from hpbandster.core.worker import Worker
 import logging
-from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.model_selection import cross_val_score, train_test_split, RepeatedStratifiedKFold
 from xgboost import XGBClassifier
 
 import pandas as pd
@@ -13,6 +13,7 @@ training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parque
 
 _, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
+ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=10)
 
 class XGBoostWorker(Worker):
     def __init__(self, *args, **kwargs):
@@ -20,10 +21,10 @@ class XGBoostWorker(Worker):
         self.x_train = X_train_sfs_xgb
         self.y_train = y_train_full
 
-    def compute(self, config, budget, working_directory, *args, **kwargs):
+    def compute(self, config, budget,  working_directory, *args, **kwargs):
         config['n_estimators'] = int(budget)
-        clf = XGBClassifier(**config, eval_metric="logloss")
-        scores = cross_val_score(clf, self.x_train, self.y_train, cv=5)
+        clf = XGBClassifier(**config, n_jobs=-1)
+        scores = cross_val_score(clf, self.x_train, self.y_train, cv=ten_fold, scoring='f1')
         acc = scores.mean()  
 
         return ({
