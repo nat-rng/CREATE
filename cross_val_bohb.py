@@ -16,7 +16,7 @@ training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parque
 
 _, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
-ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=5)
+ten_fold = RepeatedStratifiedKFold(n_splits=5, random_state=42, n_repeats=3)
 
 class XGBoostWorker(Worker):
     def __init__(self, *args, **kwargs):
@@ -65,7 +65,7 @@ bohb = BOHB(configspace=w.get_configspace(),
             run_id='xgb_run', nameserver='localhost',
             min_budget=3, max_budget=8)
 
-res = bohb.run(n_iterations=16, min_n_workers=num_cores)
+res = bohb.run(n_iterations=10, min_n_workers=num_cores)
 
 bohb.shutdown(shutdown_workers=True)
 NS.shutdown()
