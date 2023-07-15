@@ -10,7 +10,7 @@ training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parque
 
 xgb = XGBClassifier(n_jobs=-1)
 
-X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
+_, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 
 if not os.path.exists('models'):
     os.makedirs('models')
