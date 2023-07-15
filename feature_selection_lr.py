@@ -10,9 +10,6 @@ from imblearn.over_sampling import SMOTE
 
 import pickle
 
-training_scam_data = pd.read_parquet('data/parquet_files/training_scam_data.parquet')
-training_scam_data.drop(columns=['address_id', 'year_month'], inplace=True)
-
 training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parquet')
 
 lr = LogisticRegression(max_iter=1000)
