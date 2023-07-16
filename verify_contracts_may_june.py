@@ -11,7 +11,7 @@ import re
 
 alchemy = AlchemyApi()
 
-filtered_may_june_addresses = pd.read_pickle('data/parquet_files/filtered_may_june_addresses.pkl')
+filtered_may_june_addresses = pd.read_pickle('data/pickle_files/filtered_may_june_addresses.pkl')
 
 def get_address_type(address, api_keys, alchemy_url):
     check_sum_address = Web3.to_checksum_address(address)
