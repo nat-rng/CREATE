@@ -11,11 +11,7 @@ import re
 
 alchemy = AlchemyApi()
 
-flagged_fraud = pd.read_parquet('data/parquet_files/flagged_fraud.parquet')
-
-flagged_addresses = flagged_fraud['address']
-
-filtered_may_june_addresses = pd.read_parquet('data/parquet_files/filtered_may_june_addresses.parquet')
+filtered_may_june_addresses = pd.read_pickle('data/parquet_files/filtered_may_june_addresses.pkl')
 
 def get_address_type(address, api_keys, alchemy_url):
     check_sum_address = Web3.to_checksum_address(address)
