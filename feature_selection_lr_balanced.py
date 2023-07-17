@@ -25,8 +25,8 @@ if not os.path.exists('models'):
 # Sequential Feature Selection with Logistic Regression
 for num_features in range(10, 16):
     sfs_lr = SequentialFeatureSelector(lr, n_features_to_select=num_features)
-    sfs_lr.fit(X_train_full_scaled, X_test_full_scaled)
-    sfs_feat_lr = X_train_full.columns[sfs_lr.get_support()]
+    sfs_lr.fit(X_train_full_scaled, y_train_full)
+    sfs_feat_lr = X_train_full_scaled.columns[sfs_lr.get_support()]
 
     print("No. of Selected Features by Logistic Regression ({} features): {}".format(num_features, len(sfs_feat_lr)))
     print("Logistic Regression Selected Features: ", sfs_feat_lr)
