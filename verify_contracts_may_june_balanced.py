@@ -43,8 +43,8 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
         except TypeError as e:
             continue
 
-with open('data/pickle_files/may_june_user_addresses.pkl', 'wb') as f:
+with open('data/pickle_files/may_june_user_addresses_balanced.pkl', 'wb') as f:
     pickle.dump(user_addresses, f)
 
-with open('data/pickle_files/may_june_contract_addresses.pkl', 'wb') as f:
+with open('data/pickle_files/may_june_contract_addresses_balanced.pkl', 'wb') as f:
     pickle.dump(contract_addresses, f)
