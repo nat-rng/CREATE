@@ -8,7 +8,7 @@ import community as community_louvain
 if not os.path.exists('data/graph_files'):
     os.makedirs('data/graph_files')
 
-potential_fraud_df = pd.read_parquet('data/parquet_files/potential_fraud_transactions_df.parquet')
+potential_fraud_df = pd.read_parquet('data/parquet_files/potential_fraud_transactions_df_bal.parquet')
 potential_fraud_df = potential_fraud_df[potential_fraud_df['to_id'].isnull()==False]
 potential_fraud_df['to_id'] = potential_fraud_df['to_id'].astype('int64')
 potential_fraud_df = potential_fraud_df.fillna(value={'asset_value': 0})
@@ -35,7 +35,7 @@ centrality_df = pd.DataFrame(data).reset_index().rename(columns={'index': 'node_
 partition = community_louvain.best_partition(G)
 data = {'node_id': list(partition.keys()), 'community': list(partition.values())}
 community_df = pd.DataFrame(data)
-community_df.to_parquet('data/graph_files/eth_community_df.parquet')
+community_df.to_parquet('data/graph_files/eth_community_df_bal.parquet')
 
 # Create a color map, one for each partition
 color_map = cm.get_cmap('nipy_spectral', max(partition.values()) + 1)
@@ -52,5 +52,5 @@ layout = nx.kamada_kawai_layout(G)
 
 nx.draw(G, layout, node_size=2, node_color=node_colors, width=0.1, alpha=0.3, with_labels=False)
 
-plt.savefig("data/graph_files/eth_community_graph.png")
+plt.savefig("data/graph_files/eth_community_graph_bal.png")
 plt.close()

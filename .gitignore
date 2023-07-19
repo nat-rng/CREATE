@@ -121,3 +121,4 @@ dmypy.json
 # data directory
 data/parquet_files/potential_fraud_transactions_df_bal.parquet
 data/parquet_files/potential_fraud_transactions_df.parquet
+data/gexf_files
