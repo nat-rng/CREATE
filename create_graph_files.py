@@ -23,11 +23,12 @@ agg_eth_df = potential_fraud_eth_df.groupby(['from_id', 'to_id'], as_index=False
 
 G = nx.from_pandas_edgelist(agg_eth_df, 'from_id', 'to_id', edge_attr='asset_value', create_using=nx.DiGraph())
 
-#compute pagerank
-pr = nx.pagerank(G, alpha=0.9, max_iter=1000)
+#compute pagerank, degree centrality and weighted degree
+pr = nx.pagerank(G, alpha=0.9)
+dc = nx.degree_centrality(G)
+wd = nx.weighted_degree(G, weight='asset_value')
 
 #create dataframe with pagerank, betweenness centrality, degree centrality for each node
-pr_df = pd.DataFrame.from_dict(pr, orient='index', columns=['pagerank'])
-pr_df = pr_df.reset_index()
-pr_df = pr_df.rename(columns={'index': 'node_id'})
-pr_df.to_parquet('data/graph_files/eth_pr_df.parquet')
+data = {'pagerank': pr, 'degree_centrality': dc, 'weighted_degree': wd}
+centrality_df = pd.DataFrame(data).reset_index().rename(columns={'index': 'node_id'})
+centrality_df.to_parquet('data/graph_files/eth_centrality_df.parquet')
