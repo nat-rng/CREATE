@@ -25,7 +25,7 @@ G = nx.from_pandas_edgelist(agg_eth_df, 'from_id', 'to_id', edge_attr='asset_val
 
 #compute pagerank, degree centrality and weighted degree
 pr = nx.pagerank(G, alpha=0.9)
-dc = nx.degree_centrality(G, weight='asset_value')
+dc = nx.degree_centrality(G)
 wd = nx.degree(G, weight='asset_value')
 in_degree = dict(G.in_degree())
 out_degree = dict(G.out_degree())
