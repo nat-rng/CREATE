@@ -23,34 +23,11 @@ agg_eth_df = potential_fraud_eth_df.groupby(['from_id', 'to_id'], as_index=False
 
 G = nx.from_pandas_edgelist(agg_eth_df, 'from_id', 'to_id', edge_attr='asset_value', create_using=nx.DiGraph())
 
-#compute pagerank, betweenness centrality, degree centrality
-pr = nx.pagerank(G, alpha=0.9)
-bc = nx.betweenness_centrality(G)
-dc = nx.degree_centrality(G)
+#compute pagerank
+pr = nx.pagerank(G, alpha=0.9, max_iter=1000)
 
 #create dataframe with pagerank, betweenness centrality, degree centrality for each node
-data = {'pagerank': pr, 'betweenness_centrality': bc, 'degree_centrality': dc}
-centrality_df = pd.DataFrame(data).reset_index().rename(columns={'index': 'node_id'})
-
-partition = community_louvain.best_partition(G)
-data = {'node_id': list(partition.keys()), 'community': list(partition.values())}
-community_df = pd.DataFrame(data)
-community_df.to_parquet('data/graph_files/eth_community_df.parquet')
-
-# Create a color map, one for each partition
-color_map = cm.get_cmap('nipy_spectral', max(partition.values()) + 1)
-
-# Apply community to graph and color nodes by their community
-for node in G.nodes():
-    G.nodes[node]['community'] = partition[node]
-    G.nodes[node]['color'] = color_map(partition[node])
-
-node_colors = [G.nodes[node]['color'] for node in G.nodes()]
-
-plt.figure(figsize=(1000, 720))
-layout = nx.kamada_kawai_layout(G)
-
-nx.draw(G, layout, node_size=2, node_color=node_colors, width=0.1, alpha=0.3, with_labels=False)
-
-plt.savefig("data/graph_files/eth_community_graph.png")
-plt.close()
+pr_df = pd.DataFrame.from_dict(pr, orient='index', columns=['pagerank'])
+pr_df = pr_df.reset_index()
+pr_df = pr_df.rename(columns={'index': 'node_id'})
+pr_df.to_parquet('data/graph_files/eth_pr_df.parquet')
