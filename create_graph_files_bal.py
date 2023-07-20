@@ -30,7 +30,11 @@ wd = nx.degree(G, weight='asset_value')
 in_degree = dict(G.in_degree())
 out_degree = dict(G.out_degree())
 
-#create dataframe with pagerank, betweenness centrality, degree centrality for each node
-data = {'pagerank': pr, 'degree_centrality': dc, 'weighted_degree': wd, 'in_degree': in_degree, 'out_degree': out_degree}
-centrality_df = pd.DataFrame(data).reset_index().rename(columns={'index': 'node_id'})
+pr_series = pd.Series(pr, name='pagerank')
+dc_series = pd.Series(dc, name='degree_centrality')
+wd_series = pd.Series(wd, name='weighted_degree')
+in_degree_series = pd.Series(in_degree, name='in_degree')
+out_degree_series = pd.Series(out_degree, name='out_degree')
+
+centrality_df = pd.concat([pr_series, dc_series, wd_series, in_degree_series, out_degree_series], axis=1).reset_index().rename(columns={'index': 'node_id'})
 centrality_df.to_parquet('data/graph_files/eth_centrality_df_bal.parquet')
