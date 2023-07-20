@@ -27,8 +27,10 @@ G = nx.from_pandas_edgelist(agg_eth_df, 'from_id', 'to_id', edge_attr='asset_val
 pr = nx.pagerank(G, alpha=0.9)
 dc = nx.degree_centrality(G)
 wd = nx.weighted_degree(G, weight='asset_value')
+in_degree = G.in_degree()
+out_degree = G.out_degree()
 
 #create dataframe with pagerank, betweenness centrality, degree centrality for each node
-data = {'pagerank': pr, 'degree_centrality': dc, 'weighted_degree': wd}
+data = {'pagerank': pr, 'degree_centrality': dc, 'weighted_degree': wd, 'in_degree': in_degree, 'out_degree': out_degree}
 centrality_df = pd.DataFrame(data).reset_index().rename(columns={'index': 'node_id'})
 centrality_df.to_parquet('data/graph_files/eth_centrality_df_bal.parquet')
