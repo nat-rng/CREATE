@@ -1,3 +1,4 @@
+import community as community_louvain
 import pandas as pd
 import networkx as nx
 import os
@@ -34,4 +35,22 @@ in_degree_series = pd.Series(in_degree, name='in_degree')
 out_degree_series = pd.Series(out_degree, name='out_degree')
 
 centrality_df = pd.concat([pr_series, dc_series, wd_series, in_degree_series, out_degree_series], axis=1).reset_index().rename(columns={'index': 'node_id'})
+
+components = nx.weakly_connected_components(G)
+node_to_comp = {node: i for i, comp in enumerate(components) for node in comp}
+component_df = pd.DataFrame.from_dict(node_to_comp, orient='index', columns=['component_id']).reset_index().rename(columns={'index': 'node_id'})
+
+centrality_df = centrality_df.merge(component_df, on='node_id', how='left')
+
 centrality_df.to_parquet('data/graph_files/eth_centrality_df_bal.parquet')
+components = nx.weakly_connected_components(G)
+
+largest_component = max(components, key=len)
+sub_graph = G.subgraph(largest_component)
+
+#convert to undirected graph
+sub_graph = sub_graph.to_undirected()
+
+partition = community_louvain.best_partition(sub_graph)
+partition_df = pd.DataFrame.from_dict(partition, orient='index', columns=['community_id']).reset_index().rename(columns={'index': 'node_id'})
+partition_df.to_parquet('data/graph_files/eth_community_df_bal.parquet')
