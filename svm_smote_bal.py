@@ -37,21 +37,21 @@ smote_xgb_pipeline = make_pipeline(svmsmote, XGBClassifier())
 pt = PowerTransformer()
 X_train_scaled = pt.fit_transform(X_train)
 
-scores_svmsmote_lr = cross_validate(smote_lr_pipeline, X_train_scaled, y_train, cv=rskf, scoring=scoring)
+scores_svmsmote_lr = cross_validate(smote_lr_pipeline, X_train_scaled, y_train, cv=rskf, scoring=scoring, error_score='raise')
 print(f'LR Accuracy: {scores_svmsmote_lr["test_accuracy"].mean()}')
 print(f'LR Precision: {scores_svmsmote_lr["test_precision"].mean()}')
 print(f'LR Recall: {scores_svmsmote_lr["test_recall"].mean()}')
 print(f'LR F1: {scores_svmsmote_lr["test_f1"].mean()}')
 
 #random forest baseline
-scores_svmsmote_rf = cross_validate(smote_rf_pipeline, X_train, y_train, cv=rskf, scoring=scoring)
+scores_svmsmote_rf = cross_validate(smote_rf_pipeline, X_train, y_train, cv=rskf, scoring=scoring, error_score='raise')
 print(f'RF Accuracy: {scores_svmsmote_rf["test_accuracy"].mean()}')
 print(f'RF Precision: {scores_svmsmote_rf["test_precision"].mean()}')
 print(f'RF Recall: {scores_svmsmote_rf["test_recall"].mean()}')
 print(f'RF F1: {scores_svmsmote_rf["test_f1"].mean()}')
 
 #xgboost baseline
-scores_svmsmote_xgb = cross_validate(smote_xgb_pipeline, X_train, y_train, cv=rskf, scoring=scoring)
+scores_svmsmote_xgb = cross_validate(smote_xgb_pipeline, X_train, y_train, cv=rskf, scoring=scoring, error_score='raise')
 print(f'XGB Accuracy: {scores_svmsmote_xgb["test_accuracy"].mean()}')
 print(f'XGB Precision: {scores_svmsmote_xgb["test_precision"].mean()}')
 print(f'XGB Recall: {scores_svmsmote_xgb["test_recall"].mean()}')
