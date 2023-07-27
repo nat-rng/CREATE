@@ -57,11 +57,11 @@ print(f'XGB Precision: {scores_svmsmote_xgb["test_precision"].mean()}')
 print(f'XGB Recall: {scores_svmsmote_xgb["test_recall"].mean()}')
 print(f'XGB F1: {scores_svmsmote_xgb["test_f1"].mean()}')
 
-with open('data/pickle_files/svmsmote_lr_pipeline_bal.pkl', 'wb') as f:
-    pickle.dump(smote_lr_pipeline, f)
+with open('data/pickle_files/scores_svmsmote_lr_bal.pkl', 'wb') as f:
+    pickle.dump(scores_svmsmote_lr, f)
 
-with open('data/pickle_files/svmsmote_rf_pipeline_bal.pkl', 'wb') as f:
-    pickle.dump(smote_rf_pipeline, f)
+with open('data/pickle_files/scores_svmsmote_rf_bal.pkl', 'wb') as f:
+    pickle.dump(scores_svmsmote_rf, f)
 
-with open('data/pickle_files/svmsmote_xgb_pipeline_bal.pkl', 'wb') as f:
-    pickle.dump(smote_xgb_pipeline, f)
+with open('data/pickle_files/scores_svmsmote_xgb_bal.pkl', 'wb') as f:
+    pickle.dump(scores_svmsmote_xgb, f)
