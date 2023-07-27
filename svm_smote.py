@@ -14,7 +14,7 @@ from sklearn.preprocessing import PowerTransformer
 
 from imblearn.pipeline import make_pipeline
 from imblearn.over_sampling import SVMSMOTE
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import NearestNeighbors
 
 training_data_rfm = pd.read_parquet('data/parquet_files/training_data_rfm.parquet')
 
@@ -27,16 +27,15 @@ scoring = {'accuracy': make_scorer(accuracy_score),
            'recall': make_scorer(recall_score),
            'f1': make_scorer(f1_score)}
 
-#scale data
-pt = PowerTransformer()
-X_train_scaled = pt.fit_transform(X_train)
-
-kfive_neighbours = KNeighborsClassifier(n_neighbors=5, n_jobs=-1)
-kfive_neighbours.fit(X_train_scaled, y_train)
-svmsmote = SVMSMOTE(k_neighbors=kfive_neighbours, random_state=42)
+five_neighbours = NearestNeighbors(n_jobs=-1)
+svmsmote = SVMSMOTE(k_neighbors=five_neighbours, random_state=42)
 smote_lr_pipeline = make_pipeline(svmsmote, LogisticRegression(max_iter=1000))
 smote_rf_pipeline = make_pipeline(svmsmote, RandomForestClassifier())
 smote_xgb_pipeline = make_pipeline(svmsmote, XGBClassifier())
+
+#scale data
+pt = PowerTransformer()
+X_train_scaled = pt.fit_transform(X_train)
 
 scores_svmsmote_lr = cross_validate(smote_lr_pipeline, X_train_scaled, y_train, cv=rskf, scoring=scoring)
 print(f'LR Accuracy: {scores_svmsmote_lr["test_accuracy"].mean()}')
