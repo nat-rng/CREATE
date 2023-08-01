@@ -12,7 +12,7 @@ training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parque
 
 _, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
-ten_fold = RepeatedStratifiedKFold(n_splits=3, random_state=42, n_repeats=2)
+ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=5)
 
 def train_xgboost(config, checkpoint_dir=None):
     # config parameters will be automatically chosen by BOHB
@@ -22,9 +22,11 @@ def train_xgboost(config, checkpoint_dir=None):
     tune.report(loss=1-f1)
 
 config = {
-    'eta': tune.loguniform(0.1, 1.0),
+    'eta': tune.loguniform(0.01, 1.0),
     'max_depth': tune.randint(1, 15),
     'min_child_weight': tune.randint(1, 11),
+    'gamma': tune.uniform(0, 1),
+    'lambda': tune.uniform(0, 2),
     'alpha': tune.uniform(0, 1),
     'scale_pos_weight': tune.uniform(0.1, 10),
     'subsample': tune.uniform(0.5, 1.0),
@@ -49,8 +51,7 @@ analysis = tune.run(
     config=config,
     scheduler=bohb_hyperband,
     search_alg=bohb_search,
-    num_samples=20,
-    stop={"training_iteration": 100}
+    num_samples=100
 )
 
 # Get the best result
