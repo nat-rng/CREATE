@@ -16,7 +16,7 @@ training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parque
 
 _, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
-ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=5)
+ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=3)
 
 class XGBoostWorker(Worker):
     def __init__(self, *args, **kwargs):
@@ -25,7 +25,7 @@ class XGBoostWorker(Worker):
         self.y_train = y_train_full
 
     def compute(self, config, budget,  working_directory, *args, **kwargs):
-        config['max_depth'] = int(budget)
+        config['n_estimators'] = int(budget)
         clf = XGBClassifier(**config, n_jobs=-1)
         scores = cross_val_score(clf, self.x_train, self.y_train, cv=ten_fold, scoring='f1')
         acc = scores.mean()  
@@ -39,11 +39,9 @@ class XGBoostWorker(Worker):
     def get_configspace():
         config_space = CS.ConfigurationSpace()
         config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('eta', lower=0.1, upper=0.5))
-        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('n_estimators', lower=150, upper=300))
-        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('min_child_weight', lower=1, upper=7))
+        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('max_depth', lower=6, upper=13))
         config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('subsample', lower=0.8, upper=1.0))
         config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('colsample_bytree', lower=0.8, upper=1.0))
-        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('scale_pos_weight', lower=1, upper=3))
         return config_space
 
 NS = hpns.NameServer(run_id='xgb_run', host='localhost', port=None)
@@ -59,9 +57,9 @@ for i in range(num_cores):  # adjust the number according to your available core
 
 bohb = BOHB(configspace=w.get_configspace(),
             run_id='xgb_run', nameserver='localhost',
-            min_budget=6, max_budget=15)
+            eta=3, min_budget=10, max_budget=350)
 
-res = bohb.run(n_iterations=30, min_n_workers=num_cores)
+res = bohb.run(n_iterations=500, min_n_workers=num_cores)
 
 bohb.shutdown(shutdown_workers=True)
 NS.shutdown()
