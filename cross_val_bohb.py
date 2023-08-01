@@ -16,7 +16,7 @@ training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parque
 
 _, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
-three_fold = RepeatedStratifiedKFold(n_splits=3, random_state=42, n_repeats=3)
+five_fold = RepeatedStratifiedKFold(n_splits=5, random_state=42, n_repeats=3)
 
 class XGBoostWorker(Worker):
     def __init__(self, *args, **kwargs):
@@ -27,7 +27,7 @@ class XGBoostWorker(Worker):
     def compute(self, config, budget,  working_directory, *args, **kwargs):
         config['max_depth'] = int(budget)
         clf = XGBClassifier(**config, n_jobs=-1)
-        scores = cross_val_score(clf, self.x_train, self.y_train, cv=three_fold, scoring='f1')
+        scores = cross_val_score(clf, self.x_train, self.y_train, cv=five_fold, scoring='f1')
         acc = scores.mean()  
 
         return ({
