@@ -1,76 +1,64 @@
-import hpbandster.core.nameserver as hpns
-from hpbandster.optimizers import BOHB as BOHB
-import ConfigSpace as CS
-import ConfigSpace.hyperparameters as CSH
-from hpbandster.core.worker import Worker
-import logging
-from sklearn.model_selection import cross_val_score, train_test_split, RepeatedStratifiedKFold
+from ray import tune
+from ray.tune.schedulers import HyperBandForBOHB
+from ray.tune.search.bohb import TuneBOHB
 from xgboost import XGBClassifier
-import multiprocessing
-
+from sklearn.model_selection import cross_val_score, train_test_split, RepeatedStratifiedKFold
+import pandas as pd
 import os
 import pickle
-import pandas as pd
+import multiprocessing
 
 training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm.parquet')
 
 _, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
-ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=3)
+ten_fold = RepeatedStratifiedKFold(n_splits=3, random_state=42, n_repeats=2)
 
-class XGBoostWorker(Worker):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.x_train = X_train_sfs_xgb
-        self.y_train = y_train_full
+def train_xgboost(config, checkpoint_dir=None):
+    # config parameters will be automatically chosen by BOHB
+    clf = XGBClassifier(n_jobs=-1, **config)
+    scores = cross_val_score(clf, X_train_sfs_xgb, y_train_full, cv=ten_fold, scoring='f1')
+    f1 = scores.mean()
+    tune.report(loss=1-f1)
 
-    def compute(self, config, budget,  working_directory, *args, **kwargs):
-        config['n_estimators'] = int(budget)
-        clf = XGBClassifier(**config, n_jobs=-1)
-        scores = cross_val_score(clf, self.x_train, self.y_train, cv=ten_fold, scoring='f1')
-        acc = scores.mean()  
+config = {
+    'eta': tune.loguniform(0.1, 1.0),
+    'max_depth': tune.randint(1, 15),
+    'min_child_weight': tune.randint(1, 11),
+    'alpha': tune.uniform(0, 1),
+    'scale_pos_weight': tune.uniform(0.1, 10),
+    'subsample': tune.uniform(0.5, 1.0),
+    'colsample_bytree': tune.uniform(0.5, 1.0),
+    'n_estimators': tune.randint(50, 500)
+}
 
-        return ({
-            'loss': 1-acc,  
-            'info': {}
-        })
+bohb_hyperband = HyperBandForBOHB(
+    time_attr="training_iteration",
+    max_t=350, 
+    reduction_factor=3.5,
+    metric="loss",
+    mode="min")
 
-    @staticmethod
-    def get_configspace():
-        config_space = CS.ConfigurationSpace()
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('eta', lower=0.1, upper=0.5))
-        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('max_depth', lower=6, upper=13))
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('subsample', lower=0.8, upper=1.0))
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('colsample_bytree', lower=0.8, upper=1.0))
-        return config_space
+bohb_search = TuneBOHB(
+    max_concurrent=multiprocessing.cpu_count(),
+    metric="loss",
+    mode="min")
 
-NS = hpns.NameServer(run_id='xgb_run', host='localhost', port=None)
-NS.start()
+analysis = tune.run(
+    train_xgboost,
+    config=config,
+    scheduler=bohb_hyperband,
+    search_alg=bohb_search,
+    num_samples=20,
+    stop={"training_iteration": 100}
+)
 
-num_cores = multiprocessing.cpu_count()
-# start multiple instances of the worker
-workers = []
-for i in range(num_cores):  # adjust the number according to your available cores
-    w = XGBoostWorker(nameserver='localhost', run_id='xgb_run', id='xgbworker_{}'.format(i))
-    w.run(background=True)
-    workers.append(w)
-
-bohb = BOHB(configspace=w.get_configspace(),
-            run_id='xgb_run', nameserver='localhost',
-            eta=3, min_budget=10, max_budget=350)
-
-res = bohb.run(n_iterations=500, min_n_workers=num_cores)
-
-bohb.shutdown(shutdown_workers=True)
-NS.shutdown()
-
-id2config = res.get_id2config_mapping()
-incumbent = res.get_incumbent_id()
-
-print('Best found configuration:', id2config[incumbent]['config'])
+# Get the best result
+best_trial = analysis.get_best_trial("loss", "min", "last")
+print('Best found configuration:', best_trial.config)
 
 if not os.path.exists('models'):
     os.makedirs('models')
 
-with (open("models/bohb_xgb.pkl", "wb")) as f:
-    pickle.dump(res, f)
+with open("models/bohb_xgb.pkl", "wb") as f:
+    pickle.dump(best_trial, f)
