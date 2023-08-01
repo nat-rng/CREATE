@@ -38,16 +38,12 @@ class XGBoostWorker(Worker):
     @staticmethod
     def get_configspace():
         config_space = CS.ConfigurationSpace()
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('eta', lower=0.01, upper=0.5))
-        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('n_estimators', lower=50, upper=300))
-        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('min_child_weight', lower=1, upper=10))
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('gamma', lower=0.0, upper=0.4))
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('subsample', lower=0.5, upper=1.0))
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('colsample_bytree', lower=0.6, upper=1.0))
-        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('scale_pos_weight', lower=1, upper=4))
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('reg_alpha', lower=0.0, upper=1.0))
-        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('reg_lambda', lower=1.0, upper=2.0))
-
+        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('eta', lower=0.1, upper=0.5))
+        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('n_estimators', lower=150, upper=300))
+        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('min_child_weight', lower=1, upper=7))
+        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('subsample', lower=0.8, upper=1.0))
+        config_space.add_hyperparameter(CSH.UniformFloatHyperparameter('colsample_bytree', lower=0.8, upper=1.0))
+        config_space.add_hyperparameter(CSH.UniformIntegerHyperparameter('scale_pos_weight', lower=1, upper=3))
         return config_space
 
 NS = hpns.NameServer(run_id='xgb_run', host='localhost', port=None)
@@ -63,7 +59,7 @@ for i in range(num_cores):  # adjust the number according to your available core
 
 bohb = BOHB(configspace=w.get_configspace(),
             run_id='xgb_run', nameserver='localhost',
-            min_budget=3, max_budget=8)
+            min_budget=5, max_budget=10)
 
 res = bohb.run(n_iterations=5, min_n_workers=num_cores)
 
