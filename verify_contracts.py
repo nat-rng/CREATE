@@ -16,6 +16,11 @@ train_two_month_df = pd.read_parquet('data/parquet_files/train_two_month_df.parq
 check_addresses = test_df['address'].unique().tolist() + train_two_month_df['address'].unique().tolist()
 check_addresses = list(set(check_addresses))
 
+user_addresses = pd.read_pickle('data/pickle_files/user_addresses.pkl')
+contract_addresses = pd.read_pickle('data/pickle_files/contract_addresses.pkl')
+
+check_addresses = list(set(check_addresses) - set(user_addresses) - set(contract_addresses))
+
 def get_address_type(address, api_keys, alchemy_url):
     check_sum_address = Web3.to_checksum_address(address)
     api_key = api_key_rotation(api_keys)
@@ -28,12 +33,10 @@ def api_key_rotation(api_keys):
     index = random.randint(0, len(api_keys) - 1)
     return api_keys[index]
 
-user_addresses = []
-contract_addresses = []
 api_keys = alchemy.get_api_keys()
 alchemy_url = alchemy.get_api_url()
 
-with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
     future_to_address = {executor.submit(get_address_type, address, api_keys, alchemy_url): address for address in check_addresses}
     for future in concurrent.futures.as_completed(future_to_address):
         address = future_to_address[future]
