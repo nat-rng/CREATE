@@ -10,7 +10,7 @@ import pickle
 
 training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm_balanced.parquet')
 
-lr = LogisticRegression(max_iter=1000)
+lr = LogisticRegression(max_iter=5000)
 
 X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
 
