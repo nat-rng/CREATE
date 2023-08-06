@@ -6,8 +6,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 from sklearn.feature_selection import SequentialFeatureSelector
 from sklearn.preprocessing import PowerTransformer
 
-from imblearn.over_sampling import SVMSMOTE
-from sklearn.neighbors import NearestNeighbors
+from imblearn.over_sampling import SMOTE
 
 import pickle
 
@@ -25,10 +24,9 @@ X_test_full_scaled = pt.transform(X_test_full)
 if not os.path.exists('models'):
     os.makedirs('models')
 
-five_neighbours = NearestNeighbors(n_jobs=-1)
-svmsmote = SVMSMOTE(k_neighbors=five_neighbours, random_state=42)
+smote = SMOTE(random_state=42)
 
-X_train_full_smote, y_train_full_smote = svmsmote.fit_resample(X_train_full_scaled, y_train_full)
+X_train_full_smote, y_train_full_smote = smote.fit_resample(X_train_full_scaled, y_train_full)
 # Sequential Feature Selection with Logistic Regression
 for num_features in range(10, 16):
     sfs_lr = SequentialFeatureSelector(lr, n_features_to_select=num_features)
