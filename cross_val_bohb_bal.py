@@ -11,7 +11,7 @@ import multiprocessing
 training_data_full= pd.read_parquet('data/parquet_files/training_data_rfm_balanced.parquet')
 
 _, _, y_train_full, _ = train_test_split(training_data_full.drop(columns=['Flag']), training_data_full['Flag'], test_size=0.2, random_state=42)
-X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb_balanced.pkl')
+X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
 ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=5)
 
 def train_xgboost(config, checkpoint_dir=None):
@@ -58,8 +58,13 @@ analysis = tune.run(
 best_trial = analysis.get_best_trial("loss", "min", "last")
 print('Best found configuration:', best_trial.config)
 
+bohb_best_params = best_trial.config
+best_loss = best_trial.last_result['loss']
+
+best_trial_dict = {'best_params': bohb_best_params, 'best_loss': best_loss}
+
 if not os.path.exists('models'):
     os.makedirs('models')
 
-with open("models/bohb_xgb_balanced.pkl", "wb") as f:
-    pickle.dump(best_trial, f)
+with open("models/bohb_xgb.pkl", "wb") as f:
+    pickle.dump(best_trial_dict, f)

@@ -58,8 +58,13 @@ analysis = tune.run(
 best_trial = analysis.get_best_trial("loss", "min", "last")
 print('Best found configuration:', best_trial.config)
 
+bohb_best_params = best_trial.config
+best_loss = best_trial.last_result['loss']
+
+best_trial_dict = {'best_params': bohb_best_params, 'best_loss': best_loss}
+
 if not os.path.exists('models'):
     os.makedirs('models')
 
 with open("models/bohb_xgb.pkl", "wb") as f:
-    pickle.dump(best_trial, f)
+    pickle.dump(best_trial_dict, f)
