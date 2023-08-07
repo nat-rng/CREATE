@@ -124,5 +124,5 @@ data/parquet_files/potential_fraud_transactions_df.parquet
 data/parquet_files/test_df.parquet
 data/parquet_files/train_two_month_df.parquet
 data/pickle_files/user_addresses.pkl
-data/pickle_files/contract_addrasses.pkl
+data/pickle_files/contract_addresses.pkl
 data/gexf_files
