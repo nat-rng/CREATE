@@ -126,3 +126,4 @@ data/parquet_files/train_two_month_df.parquet
 data/pickle_files/user_addresses.pkl
 data/pickle_files/contract_addresses.pkl
 data/gexf_files
+data/graph_files
