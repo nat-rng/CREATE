@@ -54,3 +54,6 @@ sub_graph = sub_graph.to_undirected()
 partition = community_louvain.best_partition(sub_graph)
 partition_df = pd.DataFrame.from_dict(partition, orient='index', columns=['community_id']).reset_index().rename(columns={'index': 'node_id'})
 partition_df.to_parquet('data/graph_files/eth_community_df.parquet')
+
+community_zero = G.subgraph([node for node, community in partition.items() if community == 0])
+nx.write_graphml(community_zero, 'data/graph_files/eth_community_zero.graphml')
