@@ -28,6 +28,5 @@ all_june_accounts_df['fraud_ci'] = list(zip(fraud_lb, fraud_ub))
 
 confidence_interval_df = all_june_accounts_df[['address_id', 'normal_ci', 'fraud_ci']]
 
-with open('data/parquet_files/confidence_interval_df.pkl', 'wb') as f:
-    pickle.dump(confidence_interval_df, f)
+confidence_interval_df.to_parquet('data/parquet_files/confidence_interval_df.parquet', index=False)
 
