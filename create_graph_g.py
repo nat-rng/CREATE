@@ -5,7 +5,7 @@ import os
 if not os.path.exists('data/graph_files'):
     os.makedirs('data/graph_files')
 
-eth_tx_df = pd.read_parquet('data/parquet_files/potential_fraud_transactions_df.parquet')
+eth_tx_df = pd.read_parquet('data/parquet_files/all_eth_transactions_df.parquet')
 eth_tx_df = eth_tx_df[eth_tx_df['to_id'].isnull()==False]
 eth_tx_df['to_id'] = eth_tx_df['to_id'].astype('int64')
 eth_tx_df = eth_tx_df.fillna(value={'asset_value': 0})
