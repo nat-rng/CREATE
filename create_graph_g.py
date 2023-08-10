@@ -20,5 +20,4 @@ agg_eth_df = eth_tx_df.groupby(['from_id', 'to_id'], as_index=False).agg({'asset
 
 G = nx.from_pandas_edgelist(agg_eth_df, 'from_id', 'to_id', edge_attr='asset_value', create_using=nx.DiGraph())
 
-with open('data/graph_files/eth_graph.gexf', 'wb') as f:
-    nx.write_gexf(G, f)
+nx.write_gexf(G, 'data/graph_files/eth_graph.gexf')
