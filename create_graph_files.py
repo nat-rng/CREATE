@@ -55,3 +55,5 @@ centrality_df = centrality_df.merge(component_df, on='node_id', how='left')
 centrality_df = centrality_df.merge(partition_df, on='node_id', how='left')
 
 centrality_df.to_parquet('data/graph_files/eth_centrality_df.parquet')
+component_df.to_parquet('data/graph_files/eth_component_df.parquet')
+partition_df.to_parquet('data/graph_files/eth_partition_df.parquet')
