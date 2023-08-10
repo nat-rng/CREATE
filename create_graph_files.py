@@ -2,22 +2,24 @@ import pandas as pd
 import networkx as nx
 import os
 import community as community_louvain
+import random
+random.seed(42)
 
 if not os.path.exists('data/graph_files'):
     os.makedirs('data/graph_files')
 
-potential_fraud_df = pd.read_parquet('data/parquet_files/potential_fraud_transactions_df.parquet')
-potential_fraud_df = potential_fraud_df[potential_fraud_df['to_id'].isnull()==False]
-potential_fraud_df['to_id'] = potential_fraud_df['to_id'].astype('int64')
-potential_fraud_df = potential_fraud_df.fillna(value={'asset_value': 0})
-potential_fraud_df = potential_fraud_df[potential_fraud_df['asset'].isnull()==False]
+eth_tx_df = pd.read_parquet('data/parquet_files/all_eth_transactions_df.parquet')
+eth_tx_df = eth_tx_df[eth_tx_df['to_id'].isnull()==False]
+eth_tx_df['to_id'] = eth_tx_df['to_id'].astype('int64')
+eth_tx_df = eth_tx_df.fillna(value={'asset_value': 0})
+eth_tx_df = eth_tx_df[eth_tx_df['asset'].isnull()==False]
 #encode asset column
-potential_fraud_df['asset'] = potential_fraud_df['asset'].astype('category')
-potential_fraud_df = potential_fraud_df[['from_id', 'to_id', 'asset_value', 'asset', 'category_id']]
-potential_fraud_eth_df = potential_fraud_df[(potential_fraud_df['asset']=='ETH') & (potential_fraud_df['category_id']!=3)]
-potential_fraud_eth_df = potential_fraud_eth_df.fillna(value={'asset_value': 0})
-potential_fraud_eth_df['asset_value'] = potential_fraud_eth_df['asset_value'].astype('float')
-agg_eth_df = potential_fraud_eth_df.groupby(['from_id', 'to_id'], as_index=False).agg({'asset_value': 'sum'})
+eth_tx_df['asset'] = eth_tx_df['asset'].astype('category')
+eth_tx_df = eth_tx_df[['from_id', 'to_id', 'asset_value', 'asset', 'category_id']]
+eth_tx_df = eth_tx_df[(eth_tx_df['asset']=='ETH') & (eth_tx_df['category_id']!=3)]
+eth_tx_df = eth_tx_df.fillna(value={'asset_value': 0})
+eth_tx_df['asset_value'] = eth_tx_df['asset_value'].astype('float')
+agg_eth_df = eth_tx_df.groupby(['from_id', 'to_id'], as_index=False).agg({'asset_value': 'sum'})
 
 G = nx.from_pandas_edgelist(agg_eth_df, 'from_id', 'to_id', edge_attr='asset_value', create_using=nx.DiGraph())
 
@@ -45,11 +47,7 @@ node_to_comp = {node: i for i, comp in enumerate(components) for node in comp}
 component_df = pd.DataFrame.from_dict(node_to_comp, orient='index', columns=['component_id']).reset_index().rename(columns={'index': 'node_id'})
 #convert to undirected graph
 sub_graph = sub_graph.to_undirected()
-partition = community_louvain.best_partition(sub_graph)
-
-#create subgraph for community 0
-community_zero = G.subgraph([node for node, community in partition.items() if community == 0])
-nx.write_graphml(community_zero, 'data/graph_files/eth_community_zero.graphml')
+partition = community_louvain.best_partition(sub_graph, random_state=42)
 
 partition_df = pd.DataFrame.from_dict(partition, orient='index', columns=['community_id']).reset_index().rename(columns={'index': 'node_id'})
 
