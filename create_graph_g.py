@@ -19,7 +19,4 @@ eth_tx_df['asset_value'] = eth_tx_df['asset_value'].astype('float')
 agg_eth_df = eth_tx_df.groupby(['from_id', 'to_id'], as_index=False).agg({'asset_value': 'sum'})
 
 G = nx.from_pandas_edgelist(agg_eth_df, 'from_id', 'to_id', edge_attr='asset_value', create_using=nx.DiGraph())
-partition_df = pd.read_parquet('data/graph_files/eth_partition_df.parquet')
-community_six = G.subgraph(partition_df[partition_df['community_id'] == 6]['node_id'].tolist())
-nx.write_graphml(community_six, 'data/graph_files/eth_community_six.graphml')
 nx.write_gexf(G, 'data/graph_files/eth_graph.gexf')
