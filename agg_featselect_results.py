@@ -13,30 +13,24 @@ X_train, X_test, y_train, y_test = train_test_split(training_data_rfm.drop(colum
 pt = PowerTransformer()
 X_train_scaled = pt.fit_transform(X_train)
 
-# Define metrics
 scoring = {'accuracy': make_scorer(accuracy_score), 
            'precision': make_scorer(precision_score),
            'recall': make_scorer(recall_score),
            'f1': make_scorer(f1_score)}
 
-# Prepare RepeatedStratifiedKFold
 rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=10, random_state=42)
 
 results = []
 
-# Loop over the model files
 for i in range(10, 16):
     for model_name in ["lr", "rf", "xgb"]:
-        # Load model
         model_file = f"models/sfs_{model_name}_{i}.pkl"
         sfs_model = pd.read_pickle(model_file)
 
-        # Get selected features
         sfs_feat_xgb= X_train.columns[(sfs_model.get_support())]
         num_features = len(sfs_feat_xgb)
         selected_features = list(sfs_feat_xgb)
 
-        # Apply SMOTE if model is lr
         X_train_sub, y_train_sub = sfs_model.transform(X_train), y_train
         if model_name == "lr":
             smote = SMOTE(random_state=42)
@@ -47,10 +41,8 @@ for i in range(10, 16):
         else:
             estimator = XGBClassifier(n_jobs=-1)
 
-        # Fit and cross-validate model
         scores = cross_validate(estimator, X_train_sub, y_train_sub, cv=rskf, scoring=scoring)
 
-        # Store results
         result = {"model": f"{model_name}_{i}", 
                   "num_features": num_features,
                   "selected_features": selected_features,
@@ -60,7 +52,6 @@ for i in range(10, 16):
                   "f1": scores["test_f1"].mean()}
         results.append(result)
 
-# Create a DataFrame from the results
 results_df = pd.DataFrame(results)
 
 results_df.to_parquet("data/parquet_files/agg_featselect_results.parquet")

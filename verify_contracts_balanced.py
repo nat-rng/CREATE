@@ -4,7 +4,6 @@ import numpy as np
 import pickle
 import random
 from web3 import Web3
-# choose a Provider of your choice
 
 import concurrent.futures
 import re

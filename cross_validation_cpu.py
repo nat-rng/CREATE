@@ -27,16 +27,16 @@ ten_fold = StratifiedKFold(n_splits=10, random_state=42, shuffle=True)
 X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
 
 params = {
-    'eta': [0.2, 0.3, 0.4], # learning rate
-    'min_child_weight': [1, 5, 10], # minimum sum of instance weight (hessian) needed in a child
-    'max_depth': [5, 6, 7], # maximum depth of a tree
-    'gamma': [0.1, 0.2, 0.3], # minimum loss reduction required to make a split
-    'subsample': [0.6, 0.7, 0.8], # fraction of observations to be randomly samples for each tree.
-    'colsample_bytree': [0.7, 0.8, 0.9], # fraction of columns to be randomly samples for each tree.
-    'scale_pos_weight': [1, 2, 3], # Control the balance of positive and negative weights
-    'reg_alpha': [0.5, 1], # L1 regularization term on weight (analogous to Lasso regression)
-    'reg_lambda': [1, 1.5], # L2 regularization term on weights (analogous to Ridge regression)
-    'random_state': [42] # seed used to generate reproducible results
+    'eta': [0.2, 0.3, 0.4],
+    'min_child_weight': [1, 5, 10], 
+    'max_depth': [5, 6, 7],
+    'gamma': [0.1, 0.2, 0.3],
+    'subsample': [0.6, 0.7, 0.8],
+    'colsample_bytree': [0.7, 0.8, 0.9],
+    'scale_pos_weight': [1, 2, 3],
+    'reg_alpha': [0.5, 1],
+    'reg_lambda': [1, 1.5], 
+    'random_state': [42] 
 }
 
 grid_xgb = GridSearchCV(xgb, param_grid=params, cv=ten_fold, scoring='f1',

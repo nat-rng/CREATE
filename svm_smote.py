@@ -21,7 +21,6 @@ training_data_rfm = pd.read_parquet('data/parquet_files/training_data_rfm.parque
 X_train, X_test, y_train, y_test = train_test_split(training_data_rfm.drop(columns=['Flag']), training_data_rfm['Flag'], test_size=0.2, random_state=42)
 rskf = RepeatedStratifiedKFold(n_splits=10, n_repeats=5, random_state=42)
 
-# Define the metrics
 scoring = {'accuracy': make_scorer(accuracy_score), 
            'precision': make_scorer(precision_score),
            'recall': make_scorer(recall_score),
@@ -33,7 +32,6 @@ smote_lr_pipeline = make_pipeline(svmsmote, LogisticRegression(max_iter=1000))
 smote_rf_pipeline = make_pipeline(svmsmote, RandomForestClassifier())
 smote_xgb_pipeline = make_pipeline(svmsmote, XGBClassifier())
 
-#scale data
 pt = PowerTransformer()
 X_train_scaled = pt.fit_transform(X_train)
 
@@ -43,14 +41,12 @@ print(f'LR Precision: {scores_svmsmote_lr["test_precision"].mean()}')
 print(f'LR Recall: {scores_svmsmote_lr["test_recall"].mean()}')
 print(f'LR F1: {scores_svmsmote_lr["test_f1"].mean()}')
 
-#random forest baseline
 scores_svmsmote_rf = cross_validate(smote_rf_pipeline, X_train, y_train, cv=rskf, scoring=scoring)
 print(f'RF Accuracy: {scores_svmsmote_rf["test_accuracy"].mean()}')
 print(f'RF Precision: {scores_svmsmote_rf["test_precision"].mean()}')
 print(f'RF Recall: {scores_svmsmote_rf["test_recall"].mean()}')
 print(f'RF F1: {scores_svmsmote_rf["test_f1"].mean()}')
 
-#xgboost baseline
 scores_svmsmote_xgb = cross_validate(smote_xgb_pipeline, X_train, y_train, cv=rskf, scoring=scoring)
 print(f'XGB Accuracy: {scores_svmsmote_xgb["test_accuracy"].mean()}')
 print(f'XGB Precision: {scores_svmsmote_xgb["test_precision"].mean()}')

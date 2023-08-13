@@ -5,7 +5,6 @@ import random
 from web3 import Web3
 import concurrent.futures
 
-# Helper function to split a list into n parts
 def chunk_list(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
@@ -58,7 +57,6 @@ for i, chunk in enumerate(address_chunks):
             except TypeError as e:
                 continue
 
-    # Save the updated lists after processing each chunk
     with open('data/pickle_files/user_addresses.pkl', 'wb') as f:
         pickle.dump(user_addresses, f)
 

@@ -16,7 +16,6 @@ X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(training
 if not os.path.exists('models'):
     os.makedirs('models')
 
-# Sequential Feature Selection with XGBoost
 for num_features in range(10, 16):
     sfs_xgb = SequentialFeatureSelector(xgb, n_features_to_select=num_features)
     sfs_xgb.fit(X_train_full, y_train_full)

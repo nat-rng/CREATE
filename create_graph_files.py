@@ -13,7 +13,6 @@ eth_tx_df = eth_tx_df[eth_tx_df['to_id'].isnull()==False]
 eth_tx_df['to_id'] = eth_tx_df['to_id'].astype('int64')
 eth_tx_df = eth_tx_df.fillna(value={'asset_value': 0})
 eth_tx_df = eth_tx_df[eth_tx_df['asset'].isnull()==False]
-#encode asset column
 eth_tx_df['asset'] = eth_tx_df['asset'].astype('category')
 eth_tx_df = eth_tx_df[['from_id', 'to_id', 'asset_value', 'asset', 'category_id']]
 eth_tx_df = eth_tx_df[(eth_tx_df['asset']=='ETH') & (eth_tx_df['category_id']!=3)]
@@ -45,7 +44,6 @@ sub_graph = G.subgraph(largest_component)
 components = nx.weakly_connected_components(G)
 node_to_comp = {node: i for i, comp in enumerate(components) for node in comp}
 component_df = pd.DataFrame.from_dict(node_to_comp, orient='index', columns=['component_id']).reset_index().rename(columns={'index': 'node_id'})
-#convert to undirected graph
 sub_graph = sub_graph.to_undirected()
 partition = community_louvain.best_partition(sub_graph, random_state=42)
 

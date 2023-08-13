@@ -15,7 +15,6 @@ X_train_sfs_xgb = pd.read_pickle('models/X_train_sfs_xgb.pkl')
 ten_fold = RepeatedStratifiedKFold(n_splits=10, random_state=42, n_repeats=5)
 
 def train_xgboost(config, checkpoint_dir=None):
-    # config parameters will be automatically chosen by BOHB
     clf = XGBClassifier(n_jobs=-1, **config)
     scores = cross_val_score(clf, X_train_sfs_xgb, y_train_full, cv=ten_fold, scoring='f1')
     f1 = scores.mean()
@@ -54,7 +53,6 @@ analysis = tune.run(
     num_samples=100
 )
 
-# Get the best result
 best_trial = analysis.get_best_trial("loss", "min", "last")
 print('Best found configuration:', best_trial.config)
 
