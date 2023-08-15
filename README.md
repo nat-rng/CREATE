@@ -16,8 +16,10 @@ This repository contains the collection of Python scripts used for, validating e
 * sklearn
 * imblearn
 * networkx
+* python-louvain
 * ray-tune
 * hpbandster
+* configspace
 * web3
 
 
